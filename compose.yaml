@@ -1,0 +1,16 @@
+services:
+  creators:
+    build:
+      context: .
+      target: creators
+    ports:
+      - "9070:9070"
+      - "9071:9071"
+  fe:
+    build:
+      context: .
+      target: fe
+    command: '--creators_svc=creators:9070'
+    ports:
+      - "9072:9072"
+      - "9073:9073"

@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option go_package = "github.com/Rellum/inventive_weave/svc/creators/creatorspb";
+
+import "google/protobuf/timestamp.proto";
+
+package creatorspb;
+
+// Interface exported by the server. Note that this is an internal-facing API, so validation is not done by the server.
+// Fields passed in requests should already have been validated. Additionally, validation will be done on the db layer
+// when data is persisted.
+service Creators {
+  // Returns stats about the given creators, ordered by activity with the most active creator first.
+  rpc MostActiveCreators(MostActiveCreatorsReq) returns (MostActiveCreatorsRes) {}
+}
+
+message MostActiveCreatorsReq {
+  repeated Creator creators = 1;
+  repeated Product products = 2;
+}
+
+message MostActiveCreatorsRes {
+  // List is ordered by activity with the most active creator first.
+  repeated CreatorStats creatorStats = 1;
+}
+
+message Creator {
+  string id = 1;
+  string email = 2;
+}
+
+message Product {
+  string id = 1;
+  string creatorId = 2;
+  google.protobuf.Timestamp createTime = 3;
+}
+
+message CreatorStats {
+  Creator creator = 1;
+  // The number of products created by this creator
+  int32 productCount = 2;
+  // The createTime of the product this creator most recently created.
+  google.protobuf.Timestamp mostRecentCreateTime = 3;
+}

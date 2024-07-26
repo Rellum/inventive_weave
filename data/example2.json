@@ -1,0 +1,19 @@
+{
+  "Creators": [
+    {
+      "id": "usr_2O5YsvLlxU6d4r5ALdB03y6bf9Q",
+      "email": "xU6d4r5@ALdB03y6bf9Q.com"
+    },
+    {
+      "id": "usr_2O5YsrLH9ViyyxLzqFNuSXxBDpV",
+      "email": "9ViyyxL@zqFNuSXxBDpV.com"
+    }
+  ],
+  "Products": [
+    {
+      "id": "prod_2O5Yst3NQSf8b6xBQCVgi4KJw6p",
+      "creatorId": "usr_2O5YsvLlxU6d4r5ALdB03y6bf9Q",
+      "createTime": "2023-04-06T21:01:59.752638+02:00"
+    }
+  ]
+}

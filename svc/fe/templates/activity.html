@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventive weave activity</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body>
+<h2>Summarise creator activity</h2>
+<p>The creator activity rankings are:</p>
+<ol>
+{{ range . }}
+    <li><a href="mailto:{{ .CreatorStat.Creator.Email }}">{{ .CreatorStat.Creator.Email }}</a></li>
+{{ end }}
+</ol>
+</body>
+</html>
