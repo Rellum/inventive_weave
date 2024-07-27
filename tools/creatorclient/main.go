@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/Rellum/inventive_weave/pkg/json"
 	pb "github.com/Rellum/inventive_weave/svc/creators/creatorspb"
 	"github.com/Rellum/inventive_weave/svc/creators/types"
 	"golang.org/x/xerrors"
@@ -37,10 +37,9 @@ func run(ctx context.Context, r io.Reader, w io.Writer, args []string) error {
 	client := pb.NewCreatorsClient(conn)
 
 	// Parse input
-	var data types.Data
-	err = json.NewDecoder(r).Decode(&data)
+	data, err := json.Decode[types.Data](r)
 	if err != nil {
-		return xerrors.Errorf("json.Decoder.Decode: %w", err)
+		return err
 	}
 
 	res, err := client.MostActiveCreators(context.Background(), pb.ToProto(data))

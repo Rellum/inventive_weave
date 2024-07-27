@@ -2,8 +2,7 @@ package main
 
 import (
 	"embed"
-	_ "embed"
-	"encoding/json"
+	"github.com/Rellum/inventive_weave/pkg/json"
 	pb "github.com/Rellum/inventive_weave/svc/creators/creatorspb"
 	"github.com/Rellum/inventive_weave/svc/creators/types"
 	"golang.org/x/xerrors"
@@ -16,14 +15,6 @@ import (
 	"net/http"
 	"strings"
 )
-
-//go:embed static/index.html
-var homeTmplFile string
-var homeTmpl = template.Must(template.New("home").Parse(homeTmplFile))
-
-func home(w http.ResponseWriter, _ *http.Request) {
-	homeTmpl.Execute(w, nil)
-}
 
 //go:embed templates/activity.html
 var activityTmplFile string
@@ -73,9 +64,9 @@ func activity(cl pb.CreatorsClient) http.HandlerFunc {
 				continue
 			}
 
-			err = json.NewDecoder(p).Decode(&req)
+			req, err = json.Decode[types.Data](p)
 			if err != nil {
-				slog.ErrorContext(r.Context(), "http.Server.ListenAndServe error", slog.Any("error", xerrors.Errorf("%w", err)))
+				slog.ErrorContext(r.Context(), "http.Server.ListenAndServe error", slog.Any("error", err))
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}

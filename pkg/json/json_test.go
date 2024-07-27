@@ -1,7 +1,9 @@
-package activity_test
+package json_test
 
 import (
-	"github.com/Rellum/inventive_weave/svc/creators/activity"
+	"bytes"
+	"github.com/Rellum/inventive_weave/pkg/json"
+	"github.com/Rellum/inventive_weave/svc/creators/types"
 	"os"
 	"testing"
 	"time"
@@ -13,7 +15,7 @@ func Test_parse_product(t *testing.T) {
 	expected := time.Date(2023, 4, 6, 19, 1, 59, 752638000, time.UTC)
 
 	// When
-	data, err := activity.Parse([]byte(inputJson))
+	data, err := json.Decode[types.Data](bytes.NewBufferString(inputJson))
 	if err != nil {
 		t.Fatalf("failed to parse product: %v", err)
 	}
@@ -41,7 +43,7 @@ func Test_parse_creator(t *testing.T) {
 	inputJson := `{"Creators": [{"id": "usr_2GFm8GQt4gcSrHrFjMk97NRe3tB", "email": "4gcSrHr@FjMk97NRe3tB.com"}]}`
 
 	// When
-	data, err := activity.Parse([]byte(inputJson))
+	data, err := json.Decode[types.Data](bytes.NewBufferString(inputJson))
 	if err != nil {
 		t.Fatalf("failed to parse product: %v", err)
 	}
@@ -63,13 +65,14 @@ func Test_parse_creator(t *testing.T) {
 
 func Test_parse_file(t *testing.T) {
 	// Given
-	b, err := os.ReadFile("testdata/data.json")
+	f, err := os.Open("../../data/example1.json")
 	if err != nil {
 		t.Fatalf("failed to read file: %v", err)
 	}
+	defer f.Close()
 
 	// When
-	data, err := activity.Parse(b)
+	data, err := json.Decode[types.Data](f)
 	if err != nil {
 		t.Fatalf("failed to parse product: %v", err)
 	}

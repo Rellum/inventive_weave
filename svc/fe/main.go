@@ -73,10 +73,31 @@ func run(ctx context.Context, args []string) error {
 }
 
 func serve(ctx context.Context, address string, reg prometheus.Registerer, creatorClient pb.CreatorsClient) func(ctx context.Context) error {
-	mux := http.NewServeMux()
-	var handler http.Handler = mux
-	addRoutes(mux, creatorClient)
+	var handler = http.NewServeMux()
+	addRoutes(handler, creatorClient)
 
+	httpServer := &http.Server{
+		Addr:    address,
+		Handler: middleware(handler, reg),
+	}
+	go func() {
+		slog.Info("serving frontend", slog.String("addr", httpServer.Addr))
+		err := httpServer.ListenAndServe()
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			slog.ErrorContext(ctx, "http.Server.ListenAndServe error", slog.Any("error", xerrors.Errorf("%w", err)))
+		}
+	}()
+
+	return func(ctx context.Context) error {
+		err := httpServer.Shutdown(ctx)
+		if err != nil {
+			return xerrors.Errorf("%w", err)
+		}
+		return nil
+	}
+}
+
+func middleware(handler http.Handler, reg prometheus.Registerer) http.Handler {
 	requestsTotal := promauto.With(reg).NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "http_requests_total",
@@ -111,31 +132,13 @@ func serve(ctx context.Context, address string, reg prometheus.Registerer, creat
 	handler = promhttp.InstrumentHandlerDuration(requestDuration, handler)
 	handler = promhttp.InstrumentHandlerCounter(requestsTotal, handler)
 	handler = loggingMiddleware(handler)
-	httpServer := &http.Server{
-		Addr:    address,
-		Handler: handler,
-	}
-	go func() {
-		slog.Info("serving frontend", slog.String("addr", httpServer.Addr))
-		err := httpServer.ListenAndServe()
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			slog.ErrorContext(ctx, "http.Server.ListenAndServe error", slog.Any("error", xerrors.Errorf("%w", err)))
-		}
-	}()
-
-	return func(ctx context.Context) error {
-		err := httpServer.Shutdown(ctx)
-		if err != nil {
-			return xerrors.Errorf("%w", err)
-		}
-		return nil
-	}
+	return handler
 }
 
-func loggingMiddleware(next http.Handler) http.Handler {
+func loggingMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		slog.Info("received request", slog.String("method", r.Method), slog.String("path", r.URL.Path))
-		next.ServeHTTP(w, r)
+		h.ServeHTTP(w, r)
 	})
 }
 
