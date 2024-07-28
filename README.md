@@ -152,6 +152,9 @@ collections, and provides nice failure output for easier debugging.
  | | | |-servicename.proto  // definitions
  | | | |-servicename.pb.go  // generated files are checked in. Generate toolchain not needed for general Go development.
  | | | |-convert.go         // Code to convert between the proto and normal Go types
+ |-data                     // Data files used in multiple tests and examples
+ |-pkg                      // Go library code. Organised in packages. No "util" or mixed bag packages.
+
 ```
 
 // todo add diagram

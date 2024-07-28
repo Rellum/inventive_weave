@@ -95,7 +95,7 @@ func setup(t *testing.T) pb.CreatorsClient {
 	go func() {
 		err := s.Serve(listener)
 		if err != nil {
-			t.Fatalf("failed to serve: %v", err)
+			t.Errorf("failed to serve: %v", err)
 		}
 	}()
 
